@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<include
+		resource="org/springframework/boot/logging/logback/base.xml" />
+	
+	<!-- <springProperty scope="context" name="springAppName" source="spring.application.name"/>
+ 
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{dd-MM-yyyy HH:mm:ss} [%thread] %-5level [${springAppName:-}, trace=%X{X-B3-TraceId:-},span=%X{X-B3-SpanId:-}] %logger{40} - %msg%n
+            </Pattern>
+        </layout>
+    </appender>
+ 
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root> -->
+
+</configuration>

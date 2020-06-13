@@ -1,0 +1,4 @@
+logging:  level:    root: INFOspring:  application:    name: '@project.artifactId@'     management:  metrics:    tags:      application: '@project.artifactId@'          ---spring:  profiles: local  zipkin:    enabled: false  server:  port: 8080
+
+service-b:
+  url: http://localhost:8081/hello    management:  endpoints:    web:      exposure:        include: 'health,prometheus'        exclude: env ---spring:  profiles: devserver:  port: 8080    service-b:  url: http://service-b/hello  management:  endpoints:    web:      exposure:        include: 'health,prometheus'        exclude: env        
