@@ -23,7 +23,7 @@ public class HelloWebController {
 	@Value("${spring.application.version}")
 	private String appVersion;
 	
-	@RequestMapping(path = "/", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
+	@RequestMapping(path = "/headers", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
 	public String hello(
 			@RequestHeader(value = "sprint", required = false, defaultValue = "0") String sprint, Model model) {
 		logger.info("START hello():");
