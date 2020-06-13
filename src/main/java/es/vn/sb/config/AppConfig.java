@@ -8,8 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import brave.sampler.Sampler;
-
 @Configuration
 public class AppConfig {
 
@@ -26,8 +24,4 @@ public class AppConfig {
 		return builder.setConnectTimeout(Duration.ofMillis(3000)).setReadTimeout(Duration.ofMillis(3000)).build();
 	}
 
-	@Bean
-	public Sampler defaultSampler() {
-		return Sampler.ALWAYS_SAMPLE;
-	}
 }
