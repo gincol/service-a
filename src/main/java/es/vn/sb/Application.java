@@ -14,13 +14,12 @@ public class Application {
 
 	@Value("${spring.application.name}")
 	private String appName;
-
+	
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
 
 	@Bean
-
 	public io.opentracing.Tracer initTracer() {
 		SamplerConfiguration samplerConfig = new SamplerConfiguration().withType("const").withParam(1);
 		ReporterConfiguration reporterConfig = ReporterConfiguration.fromEnv().withLogSpans(true);
