@@ -18,4 +18,4 @@ ENV JAEGER_SERVICE_NAME=service-four\
   
 COPY --from=builder /app/target/*.jar /app.jar
 
-CMD ["java", "-jar", "/app.jar", "--spring.profiles.active=dev"]
+CMD ["java", "-jar", "/app.jar"]
