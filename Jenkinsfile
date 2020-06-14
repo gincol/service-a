@@ -1,6 +1,8 @@
+def BRANCH = ""
+
 pipeline {
 
-	agent { label "principal" }
+	agent { label "debian" }
 
 	stages {
 
@@ -13,13 +15,7 @@ pipeline {
         stage ("artifactId y version desde el pom.xml") {
             steps {
             	script {
-    				if(BRANCH_NAME.contains("sprint")){
-            			BRANCH = BRANCH_NAME.substring(BRANCH_NAME.lastIndexOf('/') + 1, BRANCH_NAME.length()-1)
-            			if(BRANCH.length()>6){
-            			    BRANCH = BRANCH.substring(0,BRANCH_NAME.length()-1)
-            			}
-            		    sprint = "-${BRANCH}"
-            		}
+    				BRANCH = BRANCH_NAME.substring(BRANCH_NAME.lastIndexOf('/') + 1, BRANCH_NAME.length()-1)
     				pom = readMavenPom file: 'pom.xml'
     				appName = pom.artifactId.toLowerCase()
     				artefacto = "${appName}"
