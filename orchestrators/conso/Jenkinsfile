@@ -5,7 +5,9 @@ def appName = ""
 pipeline {
 
 	agent { label "debian" }
-
+	tools {
+        maven 'maven-360' 
+    }
 	stages {
 
 		stage ("Inicializacion") {
