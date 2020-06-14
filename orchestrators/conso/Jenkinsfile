@@ -1,4 +1,6 @@
 def BRANCH = ""
+def version = ""
+def appName = ""
 
 pipeline {
 
@@ -15,23 +17,16 @@ pipeline {
         stage ("artifactId y version desde el pom.xml") {
             steps {
             	script {
-    				BRANCH = BRANCH_NAME.substring(BRANCH_NAME.lastIndexOf('/') + 1, BRANCH_NAME.length()-1)
-    				pom = readMavenPom file: 'pom.xml'
-    				appName = pom.artifactId.toLowerCase()
-    				artefacto = "${appName}"
-    				appName = "${appName}${sprint}"
-    				imageNameApp = appName.toLowerCase()
-					imageTagApp = pom.version
+    				version = sh script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true
+    				appName = sh script: 'mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout', returnStdout: true
+    				BRANCH = BRANCH_NAME.substring(BRANCH_NAME.lastIndexOf('/') + 1, BRANCH_NAME.length())
             	}
             }
         }
 
         stage ("Echo variables") {
             steps {
-				echo "imageTagApp = ${imageTagApp}"
-				echo "imageNameApp = ${imageNameApp}"
-				echo "appName = ${appName}"
-				echo "artefacto = ${artefacto}"
+				echo "version = ${version}"
 				echo "appName = ${appName}"
 				echo "BRANCH_NAME = ${BRANCH}"
             }
