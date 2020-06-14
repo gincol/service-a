@@ -20,8 +20,8 @@ pipeline {
             steps {
             	script {
             		pom = readMavenPom file: 'pom.xml'
-    				version = sh script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true
-    				appName = sh script: 'mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout', returnStdout: true
+    				version = pom.version
+    				appName = pom.artifactId.toLowerCase()
     				BRANCH = BRANCH_NAME.substring(BRANCH_NAME.lastIndexOf('/') + 1, BRANCH_NAME.length())
             	}
             }
