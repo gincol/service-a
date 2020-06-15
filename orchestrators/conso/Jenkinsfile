@@ -6,7 +6,7 @@ def dirService = "orchestrators/conso/k8s/app/virtualservice"
 
 def getFiles(dir) {
 	files = findFiles(glob: "${dir}/*.*")
-	return files.toList()
+	return files.toList().join("\n")
 }
 
 pipeline {
@@ -65,7 +65,7 @@ pipeline {
 				timeout(time: 24, unit: 'HOURS') {
                     script {
                        def INPUT = input message: 'Please Provide Parameters', ok: 'Next',
-                            parameters: [choice(name: 'FILE_SERVICE', choices: getFiles("${dirService}"), description: 'Available File deployment')].join("\n")
+                            parameters: [choice(name: 'FILE_SERVICE', choices: getFiles("${dirService}"), description: 'Available File deployment')]
                         env.FILE_SERVICE = INPUT.FILE_SERVICE
                         
                         echo "srvice = ${env.FILE_SERVICE}"
