@@ -5,7 +5,7 @@ def dirDeploy = "orchestrators/conso/k8s/app/deploy"
 def dirService = "orchestrators/conso/k8s/app/virtualservice"
 
 def getFiles(dir) {
-	files = findFiles(glob: '${dir}/*.*')
+	files = findFiles(glob: "${dir}/*.*")
 	return files.toList()
 }
 
@@ -50,7 +50,7 @@ pipeline {
                        def INPUT_PARAMS = input message: 'Please Provide Parameters', ok: 'Next',
                             parameters: [
                             choice(name: 'ENVIRONMENT', choices: ['dev','qa', 'pre', 'pro'].join('\n'), description: 'Please select the Environment'),
-                            choice(name: 'FILE_DEPLOY', choices: getFiles('${dirDeploy}'), description: 'Available File deployment')]
+                            choice(name: 'FILE_DEPLOY', choices: getFiles("${dirDeploy}"), description: 'Available File deployment')]
                         env.ENVIRONMENT = INPUT_PARAMS.ENVIRONMENT
                         env.FILE_DEPLOY = INPUT_PARAMS.FILE_DEPLOY
                         
@@ -68,7 +68,7 @@ pipeline {
                         // Show the select input modal
                        def INPUT_PARAMS = input message: 'Please Provide Parameters', ok: 'Next',
                             parameters: [
-                            choice(name: 'FILE_SERVICE', choices: getVirtualService('${dirService}'), description: 'Available File deployment')]
+                            choice(name: 'FILE_SERVICE', choices: getVirtualService("${dirService}"), description: 'Available File deployment')]
                         env.FILE_SERVICE = INPUT_PARAMS.FILE_SERVICE
                         
                         echo "service = ${env.FILE_SERVICE}"
