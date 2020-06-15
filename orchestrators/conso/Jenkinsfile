@@ -62,7 +62,7 @@ pipeline {
         	steps {
 				timeout(time: 24, unit: 'HOURS') {
                     script {
-                        def INPUT = input(id: 'SERVICE', message: 'Please Provide Parameters', ok: 'Next',
+                        def SERVICE = input(id: 'SERVICE', message: 'Please Provide Parameters', ok: 'Next',
 							parameters: [[$class: 'ChoiceParameterDefinition', description:'Available File services', name:'FILE_SERVICE', choices: getFiles("${dirService}")]
 						])
 			
