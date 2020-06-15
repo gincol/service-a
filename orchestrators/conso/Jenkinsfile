@@ -64,14 +64,11 @@ pipeline {
         	steps {
 				timeout(time: 24, unit: 'HOURS') {
                     script {
-                       def INPUT_DEPLOY = input message: 'Please Provide Parameters', ok: 'Next',
+                       def INPUT = input message: 'Please Provide Parameters', ok: 'Next',
                             parameters: [
-                            choice(name: 'ENVIRONMENT', choices: ['conso','qa', 'pre', 'pro'].join('\n'), description: 'Please select the Environment'),
                             choice(name: 'FILE_SERVICE', choices: getFiles("${dirService}"), description: 'Available File deployment')]
-                        env.ENVIRONMENT = INPUT.ENVIRONMENT
                         env.FILE_SERVICE = INPUT.FILE_SERVICE
                         
-                        echo "environment = ${env.ENVIRONMENT}"
                         echo "srvice = ${env.FILE_SERVICE}"
                     }
 	        	}
