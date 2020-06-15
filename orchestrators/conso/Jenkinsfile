@@ -50,11 +50,9 @@ pipeline {
                             parameters: [
                             choice(name: 'ENVIRONMENT', choices: ['conso','qa', 'pre', 'pro'].join('\n'), description: 'Please select the Environment'),
                             choice(name: 'FILE_DEPLOY', choices: getFiles("${dirDeploy}"), description: 'Available File deployment')]
-                        env.ENVIRONMENT = INPUT.ENVIRONMENT
-                        env.FILE_DEPLOY = INPUT.FILE_DEPLOY
                         
-                        echo "environment = ${INPUT.ENVIRONMENT}"
-                        echo "deploy = ${INPUT.FILE_DEPLOY}"
+                        echo "environment = ${ENVIRONMENT}"
+                        echo "deploy = ${FILE_DEPLOY}"
                     }
 	        	}
 	    	}
