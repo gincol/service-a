@@ -1,9 +1,11 @@
 def BRANCH = ""
 def version = ""
 def appName = ""
+def dirDeploy = "orchestrators/conso/k8s/app/deploy"
+def dirService = "orchestrators/conso/k8s/app/virtualservice"
 
-def getVirtualService() {
-	files = findFiles(glob: '*.*')
+def getFiles(dir) {
+	files = findFiles(glob: '${dir}/*.*')
 	return files.toList()
 }
 
@@ -40,20 +42,36 @@ pipeline {
             }
         }
 
-        stage("deploy") {
+        stage("Deploy") {
         	steps {
-				timeout(time: 30, unit: 'SECONDS') {
+				timeout(time: 24, unit: 'HOURS') {
                     script {
                         // Show the select input modal
                        def INPUT_PARAMS = input message: 'Please Provide Parameters', ok: 'Next',
                             parameters: [
                             choice(name: 'ENVIRONMENT', choices: ['dev','qa', 'pre', 'pro'].join('\n'), description: 'Please select the Environment'),
-                            choice(name: 'IMAGE_TAG', choices: getVirtualService(), description: 'Available Docker Images')]
+                            choice(name: 'FILE_DEPLOY', choices: getFiles('${dirDeploy}'), description: 'Available File deployment')]
                         env.ENVIRONMENT = INPUT_PARAMS.ENVIRONMENT
-                        env.IMAGE_TAG = INPUT_PARAMS.IMAGE_TAG
+                        env.FILE_DEPLOY = INPUT_PARAMS.FILE_DEPLOY
                         
                         echo "environment = ${env.ENVIRONMENT}"
-                        echo "environment = ${env.ENVIRONMENT}"
+                        echo "deploy = ${env.FILE_DEPLOY}"
+                    }
+	        	}
+	    	}
+	    }
+	    
+	    stage("Expose Service") {
+        	steps {
+				timeout(time: 24, unit: 'HOURS') {
+                    script {
+                        // Show the select input modal
+                       def INPUT_PARAMS = input message: 'Please Provide Parameters', ok: 'Next',
+                            parameters: [
+                            choice(name: 'FILE_SERVICE', choices: getVirtualService('${dirService}'), description: 'Available File deployment')]
+                        env.FILE_SERVICE = INPUT_PARAMS.FILE_SERVICE
+                        
+                        echo "service = ${env.FILE_SERVICE}"
                     }
 	        	}
 	    	}
