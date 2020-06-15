@@ -53,8 +53,8 @@ pipeline {
                         env.ENVIRONMENT = INPUT.ENVIRONMENT
                         env.FILE_DEPLOY = INPUT.FILE_DEPLOY
                         
-                        echo "environment = ${env.ENVIRONMENT}"
-                        echo "deploy = ${env.FILE_DEPLOY}"
+                        echo "environment = ${INPUT.ENVIRONMENT}"
+                        echo "deploy = ${INPUT.FILE_DEPLOY}"
                     }
 	        	}
 	    	}
