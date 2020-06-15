@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-a-v2-deploy
+  labels:
+    app: service-a
+    version: v2
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: service-a
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: service-a
+        version: v2
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/service-a/actuator/prometheus"
+        prometheus.io/port: "8080"
+        prometheus.io/scheme: "http"
+    spec:
+      containers:
+      - name: service-a
+        image: docker.io/gines/service-a:2.0.0
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: service-a-cm
+        ports:
+        - containerPort: 8080
+          name: http-port
