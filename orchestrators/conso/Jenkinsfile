@@ -46,12 +46,12 @@ pipeline {
         	steps {
 				timeout(time: 24, unit: 'HOURS') {
                     script {
-                       def INPUT_PARAMS = input message: 'Please Provide Parameters', ok: 'Next',
+                       def INPUT_DEPLOY = input message: 'Please Provide Parameters', ok: 'Next',
                             parameters: [
                             choice(name: 'ENVIRONMENT', choices: ['conso','qa', 'pre', 'pro'].join('\n'), description: 'Please select the Environment'),
                             choice(name: 'FILE_DEPLOY', choices: getFiles("${dirDeploy}"), description: 'Available File deployment')]
-                        env.ENVIRONMENT = INPUT_PARAMS.ENVIRONMENT
-                        env.FILE_DEPLOY = INPUT_PARAMS.FILE_DEPLOY
+                        env.ENVIRONMENT = INPUT_DEPLOY.ENVIRONMENT
+                        env.FILE_DEPLOY = INPUT_DEPLOY.FILE_DEPLOY
                         
                         echo "environment = ${env.ENVIRONMENT}"
                         echo "deploy = ${env.FILE_DEPLOY}"
@@ -64,10 +64,10 @@ pipeline {
         	steps {
 				timeout(time: 24, unit: 'HOURS') {
                     script {
-                       def INPUT_PARAMS = input message: 'Please Provide Parameters', ok: 'Next',
+                       def INPUT_SERVICE = input message: 'Please Provide Parameters', ok: 'Next',
                             parameters: [
                             choice(name: 'FILE_SERVICE', choices: getFiles("${dirService}"), description: 'Available File virtualservice')]
-                        env.FILE_SERVICE = INPUT_PARAMS.FILE_SERVICE
+                        env.FILE_SERVICE = INPUT_SERVICE.FILE_SERVICE
                         
                         echo "service = ${env.FILE_SERVICE}"
                     }
