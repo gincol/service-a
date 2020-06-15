@@ -65,8 +65,7 @@ pipeline {
 				timeout(time: 24, unit: 'HOURS') {
                     script {
                        def INPUT = input message: 'Please Provide Parameters', ok: 'Next',
-                            parameters: [
-                            choice(name: 'FILE_SERVICE', choices: getFiles("${dirService}"), description: 'Available File deployment')]
+                            parameters: choice(name: 'FILE_SERVICE', choices: getFiles("${dirService}"), description: 'Available File deployment')
                         env.FILE_SERVICE = INPUT.FILE_SERVICE
                         
                         echo "srvice = ${env.FILE_SERVICE}"
