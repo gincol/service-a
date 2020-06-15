@@ -67,6 +67,7 @@ pipeline {
 						])
 			
 						echo "service = ${SERVICE}"
+						sh "kubectl apply -f ${SERVICE}"
                     }
 	        	}
 	    	}
