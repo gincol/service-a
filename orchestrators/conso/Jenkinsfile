@@ -68,7 +68,7 @@ pipeline {
                         // Show the select input modal
                        def INPUT_PARAMS = input message: 'Please Provide Parameters', ok: 'Next',
                             parameters: [
-                            choice(name: 'FILE_SERVICE', choices: getVirtualService("${dirService}"), description: 'Available File deployment')]
+                            choice(name: 'FILE_SERVICE', choices: getFiles("${dirService}"), description: 'Available File deployment')]
                         env.FILE_SERVICE = INPUT_PARAMS.FILE_SERVICE
                         
                         echo "service = ${env.FILE_SERVICE}"
