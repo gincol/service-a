@@ -48,11 +48,11 @@ pipeline {
                     script {
                        def INPUT = input message: 'Please Provide Parameters', ok: 'Next',
                             parameters: [
-                            choice(name: 'ENVIRONMENT', choices: ['conso','qa', 'pre', 'pro'].join('\n'), description: 'Please select the Environment'),
-                            choice(name: 'FILE_DEPLOY', choices: getFiles("${dirDeploy}"), description: 'Available File deployment')]
+                            choice(id: 'ENVIRONMENT', choices: ['conso','qa', 'pre', 'pro'].join('\n'), description: 'Please select the Environment'),
+                            choice(id: 'FILE_DEPLOY', choices: getFiles("${dirDeploy}"), description: 'Available File deployment')]
                         
-                        echo "environment = ${INPUT.ENVIRONMENT}"
-                        echo "deploy = ${INPUT.FILE_DEPLOY}"
+                        echo "environment = ${ENVIRONMENT}"
+                        echo "deploy = ${FILE_DEPLOY}"
                     }
 	        	}
 	    	}
@@ -62,11 +62,11 @@ pipeline {
         	steps {
 				timeout(time: 24, unit: 'HOURS') {
                     script {
-                        def INPUT = input(name: 'SERVICE', message: 'Please Provide Parameters', ok: 'Next',
+                        def INPUT = input(id: 'SERVICE', message: 'Please Provide Parameters', ok: 'Next',
 							parameters: [[$class: 'ChoiceParameterDefinition', description:'Available File services', name:'FILE_SERVICE', choices: getFiles("${dirService}")]
 						])
 			
-						echo "service = ${INPUT.SERVICE}"
+						echo "service = ${SERVICE}"
                     }
 	        	}
 	    	}
