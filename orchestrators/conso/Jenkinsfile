@@ -4,7 +4,7 @@ def appName = ""
 
 def getVirtualService() {
 	files = findFiles(glob: '*.*')
-	return files
+	return files.toList()
 }
 
 pipeline {
