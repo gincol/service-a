@@ -23,12 +23,15 @@ public class HelloWebController {
 	@Value("${spring.application.version}")
 	private String appVersion;
 	
+	@Value("#{systemEnvironment['VERSION']}")
+	String serviceVersion;
+	
 	@RequestMapping(path = "/", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
 	public String hello(
 			@RequestHeader(value = "sprint", required = false, defaultValue = "0") String sprint, Model model) {
 		logger.info("START hello():");
-		model.addAttribute("message", String.format("HELLO from '%s' in sprint: '%s', version: '%s' and pod: '%s'", appName, sprint,
-				appVersion, Utils.getPodName()));
+		model.addAttribute("message", String.format("HELLO from '%s' in sprint: '%s', pom version: '%s', service version: %s and pod: '%s'", appName, sprint,
+				appVersion, serviceVersion, Utils.getPodName()));
 		return "index";
 	}
 

@@ -30,6 +30,11 @@ spec:
         envFrom:
         - configMapRef:
             name: service-a-cm
+        env:
+          name: VERSION
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels.version 
         ports:
         - containerPort: 8080
           name: http-port

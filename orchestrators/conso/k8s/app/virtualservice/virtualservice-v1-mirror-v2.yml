@@ -1,0 +1,22 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: service-a-vs
+  namespace: default
+spec:
+  hosts:
+  - "default.debian01.com"
+  gateways:
+  - default-gateway
+  http:
+  - route:
+    - destination:
+        host: service-a-svc
+        port:
+          number: 80
+        subset: version-v1
+      weight: 100
+    mirror:
+      host: service-a-svc
+      subset: version-v2
+      

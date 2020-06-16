@@ -54,21 +54,8 @@ public class HelloController {
 	@RequestMapping(path = "/direct", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
 	public HttpEntity<String> helloDirect() {
 		logger.info("START helloDirect():");
-		
-		if (Constants.ERROR == 0) {
-			return new ResponseEntity<String>(String.format("HELLO from '%s', version: '%s' and pod: '%s'\n%s", appName,
-					appVersion, Utils.getPodName(), helloService.helloDirect()),
-					HttpStatus.OK);
-		}
-
-		if (Utils.getRandomInt() == 1) {
-			return new ResponseEntity<String>(String.format("HELLO from '%s', version: '%s' and pod: '%s'\n", appName,
-					appVersion, Utils.getPodName()),
-					HttpStatus.INTERNAL_SERVER_ERROR);
-		} else {
-			return new ResponseEntity<String>(String.format("HELLO from '%s', version: '%s' and pod: '%s'\n%s", appName,
-					appVersion, Utils.getPodName(), helloService.helloDirect()), HttpStatus.OK);
-		}
+		return new ResponseEntity<String>(String.format("HELLO from '%s', version: '%s' and pod: '%s'\n%s", appName,
+				appVersion, Utils.getPodName(), helloService.helloDirect()), HttpStatus.OK);
 	}
 
 	@RequestMapping(path = "/error/{error}", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
