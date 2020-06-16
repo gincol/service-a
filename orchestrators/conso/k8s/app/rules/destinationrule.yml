@@ -1,0 +1,16 @@
+kind: DestinationRule
+metadata:
+  name: service-a-dr
+  namespace: default
+spec:
+  host: service-a-svc
+  subsets:
+  - labels:
+      version: v1
+    name: version-v1
+  - labels:
+      version: v2
+    name: version-v2
+  trafficPolicy:
+    tls:
+      mode: DISABLE
