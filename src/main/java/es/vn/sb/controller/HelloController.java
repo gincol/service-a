@@ -32,11 +32,14 @@ public class HelloController {
 
 	@Value("${spring.application.version}")
 	private String appVersion;
+	
+	@Value("#{systemEnvironment['VERSION']}")
+	String serviceVersion;
 
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
 	public HttpEntity<String> hello() {
 		logger.info("START hello():");
-		return new ResponseEntity<String>(String.format("HELLO from '%s' in pod '%s'\n", appName, Utils.getPodName()),
+		return new ResponseEntity<String>(String.format("HELLO from '%s' in pod '%s', pomversion '%s' and serviceversion '%s'\n", appName, Utils.getPodName(), appVersion, serviceVersion),
 				HttpStatus.OK);
 	}
 
@@ -46,8 +49,8 @@ public class HelloController {
 		logger.info("START hello(): sprint: " + sprint);
 
 		return new ResponseEntity<String>(
-				String.format("HELLO from '%s' in sprint: '%s', version: '%s' and pod: '%s'", appName, sprint,
-						appVersion, Utils.getPodName()),
+				String.format("HELLO from '%s' in sprint: '%s', version: '%s' in pod: '%s', pomversion '%s' and serviceversion '%s'", appName, sprint,
+						appVersion, Utils.getPodName(), appVersion, serviceVersion),
 				HttpStatus.OK);
 	}
 
@@ -56,28 +59,41 @@ public class HelloController {
 		logger.info("START helloDirect():");
 		
 		if (Constants.ERROR == 0) {
-			return new ResponseEntity<String>(String.format("HELLO from '%s', version: '%s' and pod: '%s'\n%s", appName,
-					appVersion, Utils.getPodName(), helloService.helloDirect()),
+			return new ResponseEntity<String>(String.format("HELLO from '%s', version '%s' in pod '%s', pomversion '%s' and serviceversion '%s'\n%s", appName,
+					appVersion, Utils.getPodName(), appVersion, serviceVersion, helloService.helloDirect()),
 					HttpStatus.OK);
 		}
 
 		if (Utils.getRandomInt() == 1) {
-			return new ResponseEntity<String>(String.format("HELLO from '%s', version: '%s' and pod: '%s'\n", appName,
-					appVersion, Utils.getPodName()),
+			return new ResponseEntity<String>(String.format("HELLO from '%s', version '%s' in pod '%s', pomversion '%s' and serviceversion '%s'", appName,
+					appVersion, Utils.getPodName(), appVersion, serviceVersion),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		} else {
-			return new ResponseEntity<String>(String.format("HELLO from '%s', version: '%s' and pod: '%s'\n%s", appName,
-					appVersion, Utils.getPodName(), helloService.helloDirect()), HttpStatus.OK);
+			return new ResponseEntity<String>(String.format("HELLO from '%s', version '%s' in pod '%s', pomversion '%s' and serviceversion '%s'\n'%s'", appName,
+					appVersion, Utils.getPodName(), appVersion, serviceVersion, helloService.helloDirect()), HttpStatus.OK);
 		}
 	}
+	
+	@RequestMapping(path = "/error", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
+	public HttpEntity<String> error() {
+		logger.info("START error():");
+		
+		if (Constants.ERROR == 0) {
+			return new ResponseEntity<String>(String.format("ERROR value from '%s', version '%s' in pod '%s' and error '%d', pomversion '%s' and serviceversion '%s'", appName,
+					appVersion, Utils.getPodName(), Constants.ERROR, appVersion, serviceVersion), HttpStatus.OK);
+		} 
+		return new ResponseEntity<String>(String.format("ERROR value from '%s', version '%s' in pod '%s' and error '%d', pomversion '%s' and serviceversion '%s'", appName,
+				appVersion, Utils.getPodName(), Constants.ERROR, appVersion, serviceVersion),
+				HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 
-	@RequestMapping(path = "/error/{error}", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
+	@RequestMapping(path = "/error/{error}", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
 	public HttpEntity<String> helloError(@PathVariable int error) {
 		logger.info("START helloError():");
 		Constants.ERROR = error;
 		
-		return new ResponseEntity<String>(String.format("ERROR value from '%s', version: '%s', pod: '%s' and error: '%d'\n", appName,
-				appVersion, Utils.getPodName(), error),
+		return new ResponseEntity<String>(String.format("ERROR value from '%s', version '%s' in pod: '%s', error '%d', pomversion '%s' and serviceversion '%s'", appName,
+				appVersion, Utils.getPodName(), error, appVersion, serviceVersion),
 				HttpStatus.OK);
 	}
 
