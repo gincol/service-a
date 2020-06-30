@@ -1,78 +1,152 @@
-def BRANCH = ""
-def version = ""
+def imageNameApp = ""
+def imageTagApp = ""
 def appName = ""
-def dirDeploy = "orchestrators/conso/k8s/app/deploy"
-def dirService = "orchestrators/conso/k8s/app/virtualservice"
-
-def getFiles(dir) {
-	files = findFiles(glob: "${dir}/*.*")
-	return files.toList()
-}
+def appIngressPath = "service-a"
+def namespace = "pica"
+def registroDocker = "10.29.67.28:8082"
+def customImagenApp = ""
+def baseFoler = "orchestrators/conso"
+def dockerFolderApp = "${baseFoler}/docker/app"
+def k8sFolderApp = "${baseFoler}/k8s/app/deploy"
+def dominio = "${namespace}.conso.com"
 
 pipeline {
 
-	agent { label "debian" }
-	tools {
-        maven 'maven-360'
-    }
+	agent { label "pica" }
+	
 	stages {
-
+	
 		stage ("Inicializacion") {
             steps {
 				echo "Inicio pipeline"
             }
         }
-
+        
         stage ("artifactId y version desde el pom.xml") {
             steps {
             	script {
-            		pom = readMavenPom file: 'pom.xml'
-    				version = pom.version
+    				pom = readMavenPom file: 'pom.xml'
     				appName = pom.artifactId.toLowerCase()
-    				BRANCH = BRANCH_NAME.substring(BRANCH_NAME.lastIndexOf('/') + 1, BRANCH_NAME.length())
+    				imageNameApp = appName.toLowerCase()
+					imageTagApp = pom.version
             	}
             }
         }
-
+        
         stage ("Echo variables") {
             steps {
-				echo "version = ${version}"
+				echo "imageNameApp = ${imageNameApp}"
+				echo "imageTagApp = ${imageTagApp}"
 				echo "appName = ${appName}"
-				echo "BRANCH_NAME = ${BRANCH}"
+				echo "dockerFolderApp = ${dockerFolderApp}"
+				echo "k8sFolderApp = ${k8sFolderApp}"
+				echo "appIngressPath = ${appIngressPath}"
+				echo "namespace = ${namespace}"
             }
         }
-
-        stage("Deploy") {
+	    
+        stage("Construccion y subida de imagenes al registro") {
         	steps {
-				timeout(time: 24, unit: 'HOURS') {
-                    script {
-                       def INPUT = input message: 'Please Provide Parameters', ok: 'Next',
-                            parameters: [
-                            choice(name: 'ENVIRONMENT', choices: ['conso','qa', 'pre', 'pro'].join('\n'), description: 'Please select the Environment'),
-                            choice(name: 'FILE_DEPLOY', choices: getFiles("${dirDeploy}"), description: 'Available File deployment')]
-                        
-                        echo "environment = ${INPUT.ENVIRONMENT}"
-                        echo "deploy = ${INPUT.FILE_DEPLOY}"
-                    }
-	        	}
-	    	}
+				script {
+					sh "cp /home/jenkins/docker/settings_nexus3.xml ."
+					def text = readFile "${dockerFolderApp}/Dockerfile"
+					text = text.replaceAll("ARTIFACTID", "${appName}")
+			    	writeFile file: "${dockerFolderApp}/Dockerfile", text: "${text}"
+					
+			        docker.withRegistry("http://${registroDocker}") {
+			        	echo "Construimos ${imageNameApp}:${imageTagApp}"
+			        	customImagenApp = docker.build("${imageNameApp}:${imageTagApp}", "-f ${dockerFolderApp}/Dockerfile --no-cache .")
+			        	echo "Subimos ${imageNameApp}:${imageTagApp} al registro privado"
+			            customImagenApp.push()
+			        }
+		        }
+	        }
 	    }
 	    
-	    stage("Service") {
-        	steps {
-				timeout(time: 24, unit: 'HOURS') {
-                    script {
-                        def SERVICE = input(id: 'SERVICE', message: 'Please Provide Parameters', ok: 'Next',
-							parameters: [[$class: 'ChoiceParameterDefinition', description:'Available File services', name:'FILE_SERVICE', choices: getFiles("${dirService}")]
-						])
-			
-						echo "service = ${SERVICE}"
-						sh "kubectl apply -f ${SERVICE}"
-                    }
-	        	}
-	    	}
+	    stage("Deploy k8s app") {
+	    	steps {
+	    		script {
+		    		try {
+		    			def text = readFile "${k8sFolderApp}/deployment-v1.yaml"
+						text = text.replaceAll("REGISTRO", "${registroDocker}")
+						text = text.replaceAll("IMAGENAME", "${imageNameApp}")
+						text = text.replaceAll("IMAGETAG", "${imageTagApp}")
+						text = text.replaceAll("APPNAME", "${appName}")
+						text = text.replaceAll("NAMESPACE", "${namespace}")
+						text = text.replaceAll("APPINGRESSPATH", "${appIngressPath}")
+		    			writeFile file: "${k8sFolderApp}/deployment-v1.yaml", text: "${text}"
+		    			echo "deployment = \n${text}"
+		    			
+		    			echo "Creamos deployment y servicio APP"
+		    			sh "kubectl apply -f ${k8sFolderApp}/deployment-v1.yaml"
+		    			sh "kubectl annotate deploy ${appName} kubernetes.io/change-cause=\"build ${BUILD_NUMBER}\" -n ${namespace}"
+		    			echo "Para asegurarnos borramos el pod"
+		    			sh "kubectl delete pods -l k8s-app=${appName} -n ${namespace}" 
+		    		} catch (exc) {
+		    			echo "Error al lanzar el deploy/service de la APP"
+		    			throw exc
+		    		}
+		    	}
+		    }
 	    }
-
+	    
+	    stage("Salud del despliege") {
+			steps {
+			    script {
+			        try {
+						echo "Revisamos el estado de salud del despliegue"
+						DEPLOY_OK = sh (
+						    script: "kubectl rollout status deploy/${imageNameApp} --watch=true --timeout=100s --namespace ${namespace}",
+						    returnStatus: true
+						) == 0
+						echo "Deploy OK: ${DEPLOY_OK}"
+						if (DEPLOY_OK){
+  							currentBuild.result = 'SUCCESS'
+    					} else {
+							currentBuild.result = 'FAILURE'
+							return
+	            		}
+			        } catch(exec) {
+			              echo "Error en el rollout"
+			              throw exc
+			        }
+			    }
+			}
+	    }
+	    
+	    stage("Service info") {
+	    	steps {
+	    		script {
+		    		try {
+		    			echo "Recuperamos info de la aplicación"
+		    			PORT = sh (
+						    script: "kubectl get svc --selector=k8s-app=${imageNameApp} -o jsonpath='{.items[*].spec.ports[0].nodePort}' --namespace ${namespace}",
+						    returnStdout: true
+						).trim()
+						echo "Service port: ${PORT}"
+						echo "URL: http://${dominio}:${PORT}" 
+		    		} catch (exc) {
+		    			echo "Error al buscar el puerto de servicio"
+		    			throw exc
+		    		}
+		    	}
+		    }
+	    }
+	    
+	    stage("Liberacion recursos") {
+	    	steps {
+	    		script {
+					try {
+						echo "Eliminamos imagenes innecesarias: ${imageNameApp}:${imageTagApp} manteniendolas en el registro privado"
+		    			sh "docker images -a | grep ${imageNameApp} | awk '{print \$3}' | xargs docker rmi --force"
+		    		} catch (exc) {
+		    			echo "Error al lanzar limpieza de imagenes"
+		    			throw exc
+		    		}
+		    	}
+		    }
+	    }
+	    
     }
 
 	post {
