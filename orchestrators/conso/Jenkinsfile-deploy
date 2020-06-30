@@ -1,0 +1,90 @@
+def BRANCH = ""
+def version = ""
+def appName = ""
+def dirDeploy = "orchestrators/conso/k8s/app/deploy"
+def dirService = "orchestrators/conso/k8s/app/virtualservice"
+
+def getFiles(dir) {
+	files = findFiles(glob: "${dir}/*.*")
+	return files.toList()
+}
+
+pipeline {
+
+	agent { label "pica" }
+
+	stages {
+
+		stage ("Inicializacion") {
+            steps {
+				echo "Inicio pipeline"
+            }
+        }
+
+        stage ("artifactId y version desde el pom.xml") {
+            steps {
+            	script {
+            		pom = readMavenPom file: 'pom.xml'
+    				version = pom.version
+    				appName = pom.artifactId.toLowerCase()
+    				BRANCH = BRANCH_NAME.substring(BRANCH_NAME.lastIndexOf('/') + 1, BRANCH_NAME.length())
+            	}
+            }
+        }
+
+        stage ("Echo variables") {
+            steps {
+				echo "version = ${version}"
+				echo "appName = ${appName}"
+				echo "BRANCH_NAME = ${BRANCH}"
+            }
+        }
+
+        stage("Deploy") {
+        	steps {
+				timeout(time: 24, unit: 'HOURS') {
+                    script {
+                       def INPUT = input message: 'Please Provide Parameters', ok: 'Next',
+                            parameters: [
+                            choice(name: 'ENVIRONMENT', choices: ['conso','qa', 'pre', 'pro'].join('\n'), description: 'Please select the Environment'),
+                            choice(name: 'FILE_DEPLOY', choices: getFiles("${dirDeploy}"), description: 'Available File deployment')]
+                        
+                        echo "environment = ${INPUT.ENVIRONMENT}"
+                        echo "deploy = ${INPUT.FILE_DEPLOY}"
+                    }
+	        	}
+	    	}
+	    }
+	    
+	    stage("Service") {
+        	steps {
+				timeout(time: 24, unit: 'HOURS') {
+                    script {
+                        def SERVICE = input(id: 'SERVICE', message: 'Please Provide Parameters', ok: 'Next',
+							parameters: [[$class: 'ChoiceParameterDefinition', description:'Available File services', name:'FILE_SERVICE', choices: getFiles("${dirService}")]
+						])
+			
+						echo "service = ${SERVICE}"
+						sh "kubectl apply -f ${SERVICE}"
+                    }
+	        	}
+	    	}
+	    }
+
+    }
+
+	post {
+        always {
+			echo "Fin Proceso"
+        }
+        success {
+            echo "Fin OK";
+        }
+        unstable {
+            echo "Fin inestable";
+        }
+        failure {
+            echo "Fin KO";
+        }
+    }
+}
