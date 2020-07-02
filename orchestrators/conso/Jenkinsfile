@@ -10,7 +10,7 @@ def baseFoler = "orchestrators/conso"
 def dockerFolderApp = "${baseFoler}/docker/app"
 def k8sFolderApp = "${baseFoler}/k8s/app/deploy"
 def dominio = "${namespace}.conso.com"
-def version = ""
+def version = "v1"
 def deploy = "deploy"
 
 def getVersion() {
@@ -70,7 +70,7 @@ pipeline {
 	    
 	    stage("Deploy k8s app") {
 	    	steps {
-	    		timeout(time: 24, unit: 'HOURS') {
+	    		timeout(time: 1, unit: 'MINUTE') {
                     script {
                        	def VERSION = input(id: 'VERSION', message: 'Please Provide Parameters', ok: 'Next',
 							parameters: [[$class: 'ChoiceParameterDefinition', description:'Available Versions', name:'VERSION_DEPLOY', choices: getVersion()]
