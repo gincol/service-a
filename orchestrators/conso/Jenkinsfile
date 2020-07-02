@@ -3,7 +3,8 @@ def imageTagApp = ""
 def appName = ""
 def appIngressPath = "service-a"
 def namespace = "pica"
-def registroDocker = "10.29.67.48:8083/${namespace}"
+def registroDockerUP = "10.29.67.48:8083/${namespace}"
+def registroDockerDOWN = "10.29.67.48:8082/${namespace}"
 def customImagenApp = ""
 def baseFoler = "orchestrators/conso"
 def dockerFolderApp = "${baseFoler}/docker/app"
@@ -57,7 +58,7 @@ pipeline {
 				script {
 					sh "cp /home/jenkins/docker/settings_nexus3.xml ."
 					
-			        docker.withRegistry("http://${registroDocker}") {
+			        docker.withRegistry("http://${registroDockerUP}") {
 			        	echo "Construimos ${namespace}/${imageNameApp}:${imageTagApp}"
 			        	customImagenApp = docker.build("${namespace}/${imageNameApp}:${imageTagApp}", "-f ${dockerFolderApp}/Dockerfile --no-cache .")
 			        	echo "Subimos ${namespace}/${imageNameApp}:${imageTagApp} al registro privado"
@@ -82,7 +83,7 @@ pipeline {
 	    		script {
 		    		try {
 		    			def text = readFile "${k8sFolderApp}/deployment.yml"
-						text = text.replaceAll("REGISTRO", "${registroDocker}")
+						text = text.replaceAll("REGISTRO", "${registroDockerDOWN}")
 						text = text.replaceAll("IMAGENAME", "${imageNameApp}")
 						text = text.replaceAll("IMAGETAG", "${imageTagApp}")
 						text = text.replaceAll("APPNAME", "${appName}")

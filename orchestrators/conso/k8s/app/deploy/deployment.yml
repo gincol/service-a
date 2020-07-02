@@ -20,7 +20,7 @@ spec:
         version: VERSIONDEPLOY
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/path: "/APPNAME/actuator/prometheus"
+        prometheus.io/path: "/APPINGRESSPATH/actuator/prometheus"
         prometheus.io/port: "8080"
         prometheus.io/scheme: "http"
     spec:
