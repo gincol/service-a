@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: APPNAME-VERSIONDEPLOY-deploy
+  name: APPNAME-VERSIONDEPLOY-DEPLOY
   namespace: NAMESPACE
   labels:
     app: APPNAME
