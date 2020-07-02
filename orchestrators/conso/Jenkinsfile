@@ -73,7 +73,7 @@ pipeline {
 							parameters: [[$class: 'ChoiceParameterDefinition', description:'Available Versions', name:'VERSION_DEPLOY', choices: getVersion()]
 						])
                             
-                        version = ${VERSION}
+                        version = "${VERSION}"
                         echo "version = ${version}"
                     }
 	        	}
