@@ -10,7 +10,7 @@ RUN mvn package -DskipTests
 ### STAGE 2: Setup ###
 FROM openjdk:11-jre-slim
 
-ENV JAEGER_SERVICE_NAME=service-four\
+ENV JAEGER_SERVICE_NAME=service-a\
   JAEGER_ENDPOINT=http://jaeger-collector.istio-system.svc:9411\
   JAEGER_PROPAGATION=b3\
   JAEGER_SAMPLER_TYPE=const\

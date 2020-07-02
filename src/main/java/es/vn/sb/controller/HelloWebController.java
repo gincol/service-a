@@ -1,5 +1,7 @@
 package es.vn.sb.controller;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +32,7 @@ public class HelloWebController {
 	public String hello(
 			@RequestHeader(value = "sprint", required = false, defaultValue = "0") String sprint, Model model) {
 		logger.info("START hello():");
-		model.addAttribute("message", String.format("HELLO from '%s' in sprint: '%s', pom version: '%s', service version: %s and pod: '%s'", appName, sprint,
+		model.addAttribute("message", String.format("(%tc) HELLO from '%s' in sprint: '%s', pom version: '%s', service version: %s and pod: '%s'", new Date(), appName, sprint,
 				appVersion, serviceVersion, Utils.getPodName()));
 		return "index";
 	}
