@@ -10,7 +10,7 @@ def baseFoler = "orchestrators/conso"
 def dockerFolderApp = "${baseFoler}/docker/app"
 def k8sFolderApp = "${baseFoler}/k8s/app/deploy"
 def dominio = "${namespace}.conso.com"
-def version = ""
+def version = "v1"
 def deploy = "deploy"
 
 def getVersion() {
@@ -50,7 +50,6 @@ pipeline {
 				echo "appIngressPath = ${appIngressPath}"
 				echo "namespace = ${namespace}"
 				echo "deploy = ${deploy}"
-				echo "BRANCH_NAME = ${BRANCH_NAME}"
             }
         }
 	    
@@ -84,12 +83,13 @@ pipeline {
 		                    }
 			        	}
 		    		} catch(exc) {
-		    			if(${BRANCH_NAME} == "master"){
+		    			if("${BRANCH_NAME}" == "master"){
 		    				version = "v1"
 		    			} else {
 		    				version = "v2"
 		    			}
 		    			echo "version = ${version}"
+		    			echo "BRANCH_NAME = ${BRANCH_NAME}"
 		    		}
 	    		
 		    		try {
