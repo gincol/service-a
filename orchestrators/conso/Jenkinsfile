@@ -9,6 +9,11 @@ def baseFoler = "orchestrators/conso"
 def dockerFolderApp = "${baseFoler}/docker/app"
 def k8sFolderApp = "${baseFoler}/k8s/app/deploy"
 def dominio = "${namespace}.conso.com"
+def version = ""
+
+def getVersion() {
+	return ['v1','v2'].join('\n')
+}
 
 pipeline {
 
@@ -49,9 +54,6 @@ pipeline {
         	steps {
 				script {
 					sh "cp /home/jenkins/docker/settings_nexus3.xml ."
-					def text = readFile "${dockerFolderApp}/Dockerfile"
-					text = text.replaceAll("ARTIFACTID", "${appName}")
-			    	writeFile file: "${dockerFolderApp}/Dockerfile", text: "${text}"
 					
 			        docker.withRegistry("http://${registroDocker}") {
 			        	echo "Construimos ${imageNameApp}:${imageTagApp}"
@@ -65,20 +67,31 @@ pipeline {
 	    
 	    stage("Deploy k8s app") {
 	    	steps {
+	    		timeout(time: 24, unit: 'HOURS') {
+                    script {
+                       	def VERSION = input(id: 'VERSION', message: 'Please Provide Parameters', ok: 'Next',
+							parameters: [[$class: 'ChoiceParameterDefinition', description:'Available Versions', name:'VERSION_DEPLOY', choices: getVersion()]
+						])
+                            
+                        version = ${VERSION}
+                        echo "version = ${version}"
+                    }
+	        	}
 	    		script {
 		    		try {
-		    			def text = readFile "${k8sFolderApp}/deployment-v1.yaml"
+		    			def text = readFile "${k8sFolderApp}/deployment.yaml"
 						text = text.replaceAll("REGISTRO", "${registroDocker}")
 						text = text.replaceAll("IMAGENAME", "${imageNameApp}")
 						text = text.replaceAll("IMAGETAG", "${imageTagApp}")
 						text = text.replaceAll("APPNAME", "${appName}")
 						text = text.replaceAll("NAMESPACE", "${namespace}")
 						text = text.replaceAll("APPINGRESSPATH", "${appIngressPath}")
-		    			writeFile file: "${k8sFolderApp}/deployment-v1.yaml", text: "${text}"
+						text = text.replaceAll("VERSIONDEPLOY", "${version}")
+		    			writeFile file: "${k8sFolderApp}/deployment.yaml", text: "${text}"
 		    			echo "deployment = \n${text}"
 		    			
 		    			echo "Creamos deployment y servicio APP"
-		    			sh "kubectl apply -f ${k8sFolderApp}/deployment-v1.yaml"
+		    			sh "kubectl apply -f ${k8sFolderApp}/deployment.yaml"
 		    			sh "kubectl annotate deploy ${appName} kubernetes.io/change-cause=\"build ${BUILD_NUMBER}\" -n ${namespace}"
 		    			echo "Para asegurarnos borramos el pod"
 		    			sh "kubectl delete pods -l k8s-app=${appName} -n ${namespace}" 
@@ -104,7 +117,6 @@ pipeline {
   							currentBuild.result = 'SUCCESS'
     					} else {
 							currentBuild.result = 'FAILURE'
-							return
 	            		}
 			        } catch(exec) {
 			              echo "Error en el rollout"
@@ -115,6 +127,9 @@ pipeline {
 	    }
 	    
 	    stage("Service info") {
+	        when {
+	            expression { currentBuild.result == 'SUCCESS' }
+	        }
 	    	steps {
 	    		script {
 		    		try {
