@@ -32,7 +32,7 @@ spec:
             name: service-a-cm
         env:
           - name: VERSION
-            value: v2
+            value: v1
         ports:
         - containerPort: 8080
           name: http-port
