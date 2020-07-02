@@ -40,22 +40,6 @@ pipeline {
             }
         }
 
-        stage("Deploy") {
-        	steps {
-				timeout(time: 24, unit: 'HOURS') {
-                    script {
-                       def INPUT = input message: 'Please Provide Parameters', ok: 'Next',
-                            parameters: [
-                            choice(name: 'ENVIRONMENT', choices: ['conso','qa', 'pre', 'pro'].join('\n'), description: 'Please select the Environment'),
-                            choice(name: 'FILE_DEPLOY', choices: getFiles("${dirDeploy}"), description: 'Available File deployment')]
-                        
-                        echo "environment = ${INPUT.ENVIRONMENT}"
-                        echo "deploy = ${INPUT.FILE_DEPLOY}"
-                    }
-	        	}
-	    	}
-	    }
-	    
 	    stage("Service") {
         	steps {
 				timeout(time: 24, unit: 'HOURS') {
