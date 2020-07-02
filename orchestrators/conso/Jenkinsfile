@@ -83,7 +83,11 @@ pipeline {
 		                    }
 			        	}
 		    		} catch(exc) {
-		    			version = "v1"
+		    			if(${BRANCH_NAME} == "master"){
+		    				version = "v1"
+		    			} else {
+		    				version = "v2"
+		    			}
 		    			echo "version = ${version}"
 		    		}
 	    		
