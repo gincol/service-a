@@ -79,7 +79,7 @@ pipeline {
 	        	}
 	    		script {
 		    		try {
-		    			def text = readFile "${k8sFolderApp}/deployment.yaml"
+		    			def text = readFile "${k8sFolderApp}/deployment.yml"
 						text = text.replaceAll("REGISTRO", "${registroDocker}")
 						text = text.replaceAll("IMAGENAME", "${imageNameApp}")
 						text = text.replaceAll("IMAGETAG", "${imageTagApp}")
@@ -87,11 +87,11 @@ pipeline {
 						text = text.replaceAll("NAMESPACE", "${namespace}")
 						text = text.replaceAll("APPINGRESSPATH", "${appIngressPath}")
 						text = text.replaceAll("VERSIONDEPLOY", "${version}")
-		    			writeFile file: "${k8sFolderApp}/deployment.yaml", text: "${text}"
+		    			writeFile file: "${k8sFolderApp}/deployment.yml", text: "${text}"
 		    			echo "deployment = \n${text}"
 		    			
 		    			echo "Creamos deployment y servicio APP"
-		    			sh "kubectl apply -f ${k8sFolderApp}/deployment.yaml"
+		    			sh "kubectl apply -f ${k8sFolderApp}/deployment.yml"
 		    			sh "kubectl annotate deploy ${appName} kubernetes.io/change-cause=\"build ${BUILD_NUMBER}\" -n ${namespace}"
 		    			echo "Para asegurarnos borramos el pod"
 		    			sh "kubectl delete pods -l k8s-app=${appName} -n ${namespace}" 
