@@ -70,21 +70,23 @@ pipeline {
 	    
 	    stage("Deploy k8s app") {
 	    	steps {
-	    		try {
-	    		    timeout(time: 60, unit: 'SECONDS') {
-	                    script {
-	                       	def VERSION = input(id: 'VERSION', message: 'Please Provide Parameters', ok: 'Next',
-								parameters: [[$class: 'ChoiceParameterDefinition', description:'Available Versions', name:'VERSION_DEPLOY', choices: getVersion()]
-							])
-	                            
-	                        version = "${VERSION}"
-	                        echo "version = ${version}"
-	                    }
-		        	}
-	    		} catch(exc) {
-	    			version = "v1"
-	    		}
 	    		script {
+	    			try {
+		    		    timeout(time: 60, unit: 'SECONDS') {
+		                    script {
+		                       	def VERSION = input(id: 'VERSION', message: 'Please Provide Parameters', ok: 'Next',
+									parameters: [[$class: 'ChoiceParameterDefinition', description:'Available Versions', name:'VERSION_DEPLOY', choices: getVersion()]
+								])
+		                            
+		                        version = "${VERSION}"
+		                        echo "version = ${version}"
+		                    }
+			        	}
+		    		} catch(exc) {
+		    			version = "v1"
+		    			echo "version = ${version}"
+		    		}
+	    		
 		    		try {
 		    			def text = readFile "${k8sFolderApp}/deployment.yml"
 						text = text.replaceAll("REGISTRO", "${registroDockerDOWN}")
