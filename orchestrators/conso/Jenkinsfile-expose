@@ -1,8 +1,7 @@
 def BRANCH = ""
 def version = ""
 def appName = ""
-def dirDeploy = "orchestrators/conso/k8s/app/deploy"
-def dirService = "orchestrators/conso/k8s/app/virtualservice"
+def dirVirtualService = "orchestrators/conso/k8s/app/virtualservice"
 
 def getFiles(dir) {
 	files = findFiles(glob: "${dir}/*.*")
@@ -40,20 +39,27 @@ pipeline {
             }
         }
 
-	    stage("Service") {
+	    stage("Virtual Service") {
         	steps {
 				timeout(time: 24, unit: 'HOURS') {
                     script {
-                        def SERVICE = input(id: 'SERVICE', message: 'Please Provide Parameters', ok: 'Next',
-							parameters: [[$class: 'ChoiceParameterDefinition', description:'Available File services', name:'FILE_SERVICE', choices: getFiles("${dirService}")]
+                        def VIRTUALSERVICE = input(id: 'VIRTUALSERVICE', message: 'Please Provide Parameters', ok: 'Next',
+							parameters: [[$class: 'ChoiceParameterDefinition', description:'Available File virtualservices', name:'FILE_VIRTUALSERVICE', choices: getFiles("${dirVirtualService}")]
 						])
-			
-						echo "service = ${SERVICE}"
-						sh "kubectl apply -f ${SERVICE}"
+						echo "VirtualService = ${VIRTUALSERVICE}"
+						
+						def text = readFile "${VIRTUALSERVICE}"
+						text = text.replaceAll("APPNAME", "${appName}")
+						text = text.replaceAll("NAMESPACE", "${namespace}")
+		    			writeFile file: "${VIRTUALSERVICE}", text: "${text}"
+		    			echo "virtualservice = \n${text}"
+						
+						sh "kubectl apply -f ${VIRTUALSERVICE}"
                     }
 	        	}
 	    	}
 	    }
+	    
 
     }
 
