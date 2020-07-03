@@ -1,9 +1,9 @@
 kind: DestinationRule
 metadata:
-  name: service-a-dr
-  namespace: default
+  name: APPNAME-dr
+  namespace: NAMESPACE
 spec:
-  host: service-a-svc
+  host: APPNAME-svc
   subsets:
   - labels:
       version: v1
